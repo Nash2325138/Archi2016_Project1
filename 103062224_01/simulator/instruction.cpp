@@ -1,4 +1,4 @@
-#include "instruction.h"
+#include "./instruction.h"
 #include <cstdio>
 
 void instruction(void) 
