@@ -2,12 +2,13 @@
 #define REGFILE_H
 
 #include <vector>
-class Register : public std::vector< unsigned int >
+#include <cstdio>
+#include <cstdlib>
+class Registers : public std::vector< unsigned int >
 {
 public:
-	Register(void);
+	Registers(unsigned int sp);
 };
 
-void regfile(void);
-
+void regfile_function(void);
 #endif

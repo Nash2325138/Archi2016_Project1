@@ -2,44 +2,66 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+
 #include "./instruction.h"
 #include "./regfile.h"
 #include "./memory.h"
 
+
+Memory* memory;
+InstructionMemery* instructions;
+Registers* regs;
+unsigned int PC;
+
 std::vector<unsigned int>* readImage(FILE *);
+void readInput_initialize(void);
 
 int main(int argc, char const *argv[])
 {
-	printf("This is the main functuion in simulator.cpp\n");
+	/*printf("This is the main functuion in simulator.cpp\n");
 	instruction();
 	regfile();
-	memory();
+	memory();*/
+	readInput_initialize();
 
+	return 0;
+}
 
+void readInput_initialize(void)
+{
 	FILE *dimage = fopen("dimage.bin", "rb");
 	if( dimage==NULL ) {
 		fputs("dimage read error", stderr);
 		exit(2);
 	}
-	std::vector<unsigned int> *dataInMemory = readImage(dimage);
-	//for( std::vector<unsigned int>::iterator it = dataInMemory->begin() ; it != dataInMemory->end() ; it++ ) printf("%x ", *it);
+	unsigned int sp=0;
+	unsigned char readByte;
+	for(int i=0 ; i<4 ; i++){
+		fread(&readByte, sizeof(unsigned char), 1, dimage);
+		sp <<= 8;
+		sp |= readByte;
+	}
+	memory = new Memory(dimage);
+	//for(unsigned int i=0 ; i<memory->size() ; i++)	printf("%x\n", memory->at(i));
 
+	
 	FILE *iimage = fopen("iimage.bin", "rb");
 	if(iimage==NULL) {
 		fputs("iimage read error", stderr);
 		exit(2);
 	}
-	std::vector<unsigned int> *instructions = readImage(iimage);
-	//for( std::vector<unsigned int>::iterator it = instructions->begin() ; it != instructions->end() ; it++ ) printf("%x ", *it);
-
-	Register *regs = new Register();
-	for(std::vector<unsigned int>::iterator it=regs->begin() ; it!=regs->end() ; it++){
-		printf("%u ", *it);
+	PC = 0;
+	for(int i=0 ; i<4; i++){
+		fread(&readByte, sizeof(unsigned char), 1, iimage);
+		PC <<= 8;
+		PC |= readByte;
 	}
+	instructions = new InstructionMemery(iimage);
+	//for(unsigned int i=0 ; i<instructions->size() ; i++)	printf("%x\n", instructions->at(i));
 
-	return 0;
+	regs = new Registers(sp);
+	//for(unsigned int i=0 ; i<regs->size() ; i++)	printf("%d: %x\n", i, regs->at(i));
 }
-
 
 std::vector<unsigned int>* readImage(FILE *image)
 {

@@ -1,6 +1,16 @@
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
-void instruction(void);
+#include <vector>
+#include <cstdio>
+#include <cstdlib>
+
+void instruction_function(void);
+
+class InstructionMemery : public std::vector<unsigned int>
+{
+public:
+	InstructionMemery(FILE *iimage);
+};
 
 #endif
