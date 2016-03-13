@@ -1,0 +1,11 @@
+0 10
+I addi $8, $0, 7
+I addi $9, $0, 1
+R add $10, $9, $8
+R sub $11, $8, $9
+R sub $12, $9, $8
+S halt
+S halt
+S halt
+S halt
+S halt

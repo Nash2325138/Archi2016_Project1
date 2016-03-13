@@ -4,10 +4,11 @@
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
-class Registers : public std::vector< unsigned int >
+class Registers : public std::vector< int >
 {
 public:
 	Registers(unsigned int sp);
+	int getReg(int location);
 };
 
 void regfile_function(void);
