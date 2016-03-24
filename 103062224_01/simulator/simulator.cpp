@@ -298,14 +298,23 @@ int execute(void)
 												(location%4==3) ? 0  : 0 );
 				memory->at(location/4) |= tempValue;
 				break;
+
 			case 0x0F:	//lui 
+				regs->at(rt) = immediate << 16;
 				break;
+
 			case 0x0C:	//andi 
+				regs->at(rt) = regs->at(rs) & ( (unsigned short)immediate );
 				break;
+
 			case 0x0D:	//ori 
+				regs->at(rt) = regs->at(rs) | ( (unsigned short)immediate );
 				break;
+
 			case 0x0E:	//nori 
+				regs->at(rt) = ~( regs->at(rs) | ( (unsigned short)immediate ) );
 				break;
+			
 			case 0x0A:	//slti 
 				break;
 			case 0x04:	//beg 

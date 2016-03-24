@@ -1,19 +1,13 @@
-200 20
+200 14
 I addi $1, $0, 2
-I addi $2, $0, 3
-I lw $3, $1, 2
-I lh $4, $0, 2
-I lhu $5, $0, 2
-I lb $6, $0, 15
-I lbu $7, $0, 15
-R_shift sll $8, $1, 7
-I sw $4, $8, 0
-I sh $4, $8, 6
-I sb $4, $8, 4
-I lw $9, $8, 0
-I lw $10, $8, 4
-R_shift sll $1, $1, 30
-I lhu $3, $1, 1
+I addi $2, $0, 13
+LUI lui $3, 511
+I lw $4, $0, 0
+I lw $5, $2, 3
+I andi $6, $5, 63
+I ori $7, $4, 63
+I nori $8, $5, 63 
+R and $9, $3, $5
 S halt
 S halt
 S halt
