@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
-class Registers : public std::vector< int >
+class Registers : public std::vector< unsigned int >
 {
 public:
 	Registers(unsigned int sp);

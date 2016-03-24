@@ -6,7 +6,7 @@ void regfile_function(void)
 }
 
 
-Registers::Registers(unsigned int sp) : std::vector< int >(32, 0)
+Registers::Registers(unsigned int sp) : std::vector< unsigned int >(32, 0)
 {
 	this->at(29) = sp;
 }
