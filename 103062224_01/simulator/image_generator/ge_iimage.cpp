@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
 			else if(strcmp(inst, "or")==0) 	instruction |= 0x25;
 			else if(strcmp(inst, "xor")==0) 	instruction |= 0x26;
 			else if(strcmp(inst, "nor")==0) 	instruction |= 0x27;
-			else if(strcmp(inst, "nand")==0) 	instruction |= 0x25;
+			else if(strcmp(inst, "nand")==0) 	instruction |= 0x28;
 			else if(strcmp(inst, "slt")==0) 	instruction |= 0x2a;
 			else printf("\nnNo matching inst for R type !!\n");
 
@@ -61,6 +61,7 @@ int main(int argc, char const *argv[])
 		{
 			unsigned int rd, rt, shamt;
 			fscanf(assembly, " $%u, $%u, %u", &rd, &rt, &shamt);
+			printf(" $%u, $%u, %u  ", rd, rt, shamt);
 
 			instruction = 0;
 			instruction <<= 6;
