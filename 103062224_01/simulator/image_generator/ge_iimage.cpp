@@ -87,7 +87,7 @@ int main(int argc, char const *argv[])
 		else if(strcmp(type, "R_jr")==0)
 		{
 			unsigned int rs;
-			if(fscanf(assembly, "$%u", &rs)==0) exit(99);
+			if(fscanf(assembly, " $%u", &rs)==0) exit(99);
 
 			instruction <<= 6;
 			instruction = 0;
@@ -96,6 +96,7 @@ int main(int argc, char const *argv[])
 			instruction |= rs;
 
 			instruction <<= 21;
+			instruction |= 0x08;
 		}
 		else if(strcmp(type, "I")==0)
 		{

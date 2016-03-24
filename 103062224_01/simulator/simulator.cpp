@@ -111,13 +111,13 @@ int execute(void)
 		switch(funct)
 		{
 			case 0x20:	// add
-				regs->at(rd) = (int)regs->at(rs) + (int)regs->at(rt) ;
+				regs->at(rd) = (signed int)regs->at(rs) + (signed int)regs->at(rt) ;
 				break;
 			case 0x21:	// addu
 				regs->at(rd) = (unsigned int)regs->at(rs) + (unsigned int)regs->at(rt);
 				break;
 			case 0x22:	// sub
-				regs->at(rd) = (int)regs->at(rs) - (int)regs->at(rt);
+				regs->at(rd) = (signed int)regs->at(rs) - (signed int)regs->at(rt);
 				break;
 			case 0x24:	// and
 				regs->at(rd) = regs->at(rs) & regs->at(rt);
@@ -315,20 +315,36 @@ int execute(void)
 				regs->at(rt) = ~( regs->at(rs) | ( (unsigned short)immediate ) );
 				break;
 			
-			case 0x0A:	//slti 
+			case 0x0A:	//slti
+				if( ((signed int)regs->at(rs)) < (signed short)immediate ) regs->at(rt) = 1;
+				else regs->at(rt) = 0;
 				break;
+
 			case 0x04:	//beg 
+				if( regs->at(rs)==regs->at(rt) ) PC += (signed short)immediate;
 				break;
+
 			case 0x05:	//bne 
+				if( regs->at(rs)!=regs->at(rt) ) PC += (signed short)immediate;
 				break;
+			
 			case 0x07:	//bgtz 
+				if (regs->at(rs) > 0) PC += (signed short)immediate;
 				break;
 			//--------------------------- I type end -----------------------------//
 
 
 			//--------------------------- J type start -----------------------------//
-			/*case 0x:	// 
-				break;*/
+			case 0x02:	//j
+				PC &= 0xf0000000;
+				PC |= ( ((unsigned int)address) << 2 );
+				break;
+
+			case 0x03:	//jal
+				regs->at(31) = PC;
+				PC &= 0xf0000000;
+				PC |= ( ((unsigned int)address) << 2 );
+				break;
 			//--------------------------- J type end -----------------------------//
 
 
@@ -336,7 +352,9 @@ int execute(void)
 			case 0x3f:	// halt
 				return -1;
 				break;
-			default:break;
+			default:
+				fputs("no such instruction", stderr);
+				break;
 		}
 	}
 
