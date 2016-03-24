@@ -6,6 +6,8 @@ void memory_function(void)
 
 Memory::Memory(FILE *dimage) : std::vector<unsigned int>(256, 0)
 {
+	std::vector<unsigned int>::iterator it = this->begin();
+
 	unsigned int num=0;
 	unsigned char readByte;
 	for(int i=0 ; i<4 ; i++){
@@ -13,6 +15,7 @@ Memory::Memory(FILE *dimage) : std::vector<unsigned int>(256, 0)
 		num <<= 8;
 		num |= readByte;
 	}
+	
 	for(unsigned int i=0 ; i<num ; i++){
 		unsigned int value = 0;
 		for(int j=0 ; j<4 ; j++){
@@ -20,6 +23,7 @@ Memory::Memory(FILE *dimage) : std::vector<unsigned int>(256, 0)
 			value <<= 8;
 			value |= readByte;
 		}
-		this->push_back(value);
+		*it = value;
+		it++;
 	}
 }

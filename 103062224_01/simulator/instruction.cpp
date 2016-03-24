@@ -7,9 +7,10 @@ void instruction_function(void)
 }
 
 
-InstructionMemery::InstructionMemery(FILE *iimage) : std::vector<unsigned int>(256, 0)
+InstructionMemery::InstructionMemery(unsigned int PC, FILE *iimage) : std::vector<unsigned int>(256, 0)
 {
 	std::vector<unsigned int>::iterator it = this->begin();
+	it += (PC/4);
 
 	unsigned int num=0;
 	unsigned char readByte;

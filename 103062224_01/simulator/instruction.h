@@ -10,7 +10,7 @@ void instruction_function(void);
 class InstructionMemery : public std::vector<unsigned int>
 {
 public:
-	InstructionMemery(FILE *iimage);
+	InstructionMemery(unsigned int PC, FILE *iimage);
 };
 
 #endif

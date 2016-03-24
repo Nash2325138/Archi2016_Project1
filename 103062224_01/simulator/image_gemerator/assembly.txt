@@ -1,9 +1,13 @@
-0 10
-I addi $8, $0, 7
-I addi $9, $0, 1
+200 14
+I addi $8, $0, 4
+I addi $9, $0, 7
 R add $10, $9, $8
 R sub $11, $8, $9
 R sub $12, $9, $8
+I addi $10, $8, 9567
+I addi $11, $9, 255
+R and $12, $10, $11
+R or $13, $10, $11
 S halt
 S halt
 S halt

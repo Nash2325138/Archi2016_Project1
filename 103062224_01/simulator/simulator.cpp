@@ -2,23 +2,16 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include <map>
 #include <string>
 
 #include "./instruction.h"
 #include "./regfile.h"
 #include "./memory.h"
 
-
 Memory* memory;
 InstructionMemery* instructions;
 Registers* regs;
 unsigned int PC;
-
-/*const std::map<unsigned char , std::string> opecode_trans
-{
-	{0x08 , "addi"} , {0x09, "addiu"} , {0x23, "lw"} , 
-}*/
 
 std::vector<unsigned int>* readImage(FILE *);
 void readInput_initialize(void);
@@ -82,7 +75,7 @@ void readInput_initialize(void)
 		PC <<= 8;
 		PC |= readByte;
 	}
-	instructions = new InstructionMemery(iimage);
+	instructions = new InstructionMemery(PC, iimage);
 	//for(unsigned int i=0 ; i<instructions->size() ; i++)	printf("%x\n", instructions->at(i));
 
 	regs = new Registers(sp);
@@ -94,7 +87,7 @@ int execute(void)
 {
 	unsigned int inst = instructions->at(PC/4);
 	PC += 4;
-	printf("inst==%x  ", inst);
+	//printf("inst==%x  ", inst);
 	unsigned char opcode = (unsigned char) (inst >> 26);		//warning: unsigned char has 8 bits
 	unsigned char rs =  (unsigned char) ( (inst >> 21) & 0x1f );
 	unsigned char rt = (unsigned char) ( (inst >> 16) & 0x1f );
