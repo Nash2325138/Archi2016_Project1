@@ -164,8 +164,9 @@ void print_snapshot(FILE *snapshot, int cycle)
 {
 	fprintf(snapshot , "cycle %d\n", cycle);
 	for(unsigned int i=0 ; i<regs->size() ; i++){
-		fprintf(snapshot, "$%d: 0x%08x\n", i, (unsigned int)regs->at(i));
+		fprintf(snapshot, "$%02d: 0x%08X\n", i, (unsigned int)regs->at(i));
 	}
+	fprintf(snapshot, "PC: 0x%08X\n", PC);
 	fprintf(snapshot, "\n\n");
 }
 
