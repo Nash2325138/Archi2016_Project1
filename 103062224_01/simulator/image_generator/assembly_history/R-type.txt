@@ -1,0 +1,23 @@
+200 22
+I addi $8, $0, 4
+I addi $9, $0, 7
+R add $10, $9, $8
+R sub $11, $8, $9
+R sub $12, $9, $8
+I addi $10, $8, 9567
+I addi $11, $9, 255
+R and $12, $10, $11
+R nand $13, $10, $11
+R or $14, $10, $11
+R nor $15, $10, $11
+R xor $16, $10, $11
+R slt $17, $10, $11
+R_shift sll $18, $10, 8
+R_shift srl $19, $10, 3
+R_shift srl $20, $15, 12
+R_shift sra $21, $15, 12
+S halt
+S halt
+S halt
+S halt
+S halt

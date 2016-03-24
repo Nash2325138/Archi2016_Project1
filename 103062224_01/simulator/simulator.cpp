@@ -47,11 +47,11 @@ int main(int argc, char const *argv[])
 	}
 
 
-	print_snapshot();
-	while (execute() != -1){
-		cycle++;
+	do{
 		print_snapshot();
-	}
+		cycle++;
+	}while (execute() != -1);
+	
 
 	destroy_all();
 	return 0;
@@ -154,7 +154,7 @@ int execute(void)
 	} else {
 		unsigned short immediate = inst & 0xffff;
 		unsigned int address = inst & 0x3ffffff;
-		unsigned int location;
+		unsigned int location = (regs->at(rs) + ((signed short)immediate) );;
 		signed short halfLoaded;
 		signed char byteLoaded;
 		unsigned int tempValue; 
@@ -172,7 +172,6 @@ int execute(void)
 				break;
 
 			case 0x23:	//lw
-				location = (rs + ((signed short)immediate) );
 				if ( location >1020 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -187,7 +186,6 @@ int execute(void)
 				break;
 
 			case 0x21:	//lh
-				location = (rs + ((signed short)immediate) );
 				if( location > 1022) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -199,12 +197,11 @@ int execute(void)
 				if(toReturn) return -1;
 
 				if(location%4==0) halfLoaded = (signed short) ( (memory->at(location/4)) >> 16);
-				else if(location%2==0) halfLoaded = (signed short) ( (memory->at(location)) & 0x0000ffff );
+				else if(location%2==0) halfLoaded = (signed short) ( (memory->at(location/4)) & 0x0000ffff );
 				regs->at(rt) = (signed short)halfLoaded;		// <-------- this line is very important!!!
 				break;
 
 			case 0x25:	//lhu 
-				location = (rs + ((signed short)immediate) );
 				if( location > 1022) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -216,12 +213,11 @@ int execute(void)
 				if(toReturn) return -1;
 
 				if(location%4==0) halfLoaded = (unsigned short) ( ((unsigned int)(memory->at(location/4))) >> 16);
-				else if(location%2==0) halfLoaded = (unsigned short) ( (memory->at(location)) & 0x0000ffff );
+				else if(location%2==0) halfLoaded = (unsigned short) ( (memory->at(location/4)) & 0x0000ffff );
 				regs->at(rt) = (unsigned short)halfLoaded;
 				break;
 
 			case 0x20:	//lb 
-				location = (rs + ((signed short)immediate) );
 				if( location > 1023) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -237,7 +233,6 @@ int execute(void)
 				regs->at(rt) = (signed char)byteLoaded;
 				break;
 			case 0x24:	//lbu 
-				location = (rs + ((signed short)immediate) );
 				if( location > 1023 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -254,7 +249,6 @@ int execute(void)
 				break;
 
 			case 0x2B:	//sw
-				location = (rs + ((signed short)immediate) );
 				if ( location >1020 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -268,7 +262,6 @@ int execute(void)
 				break;
 
 			case 0x29:	//sh 
-				location = (rs + ((signed short)immediate) );
 				if ( location >1022 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
@@ -288,7 +281,6 @@ int execute(void)
 				break;
 
 			case 0x28:	//sb
-				location = (rs + ((signed short)immediate) );
 				if ( location >1023 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = true;
