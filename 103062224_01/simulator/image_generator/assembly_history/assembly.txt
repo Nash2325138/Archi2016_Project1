@@ -1,0 +1,16 @@
+200 15
+I addi $1, $0, 200
+I addi $2, $0, 13
+LUI lui $3, 511
+I lw $4, $0, 0
+I lw $5, $2, 3
+I andi $6, $5, 63
+I ori $7, $4, 63
+I nori $8, $5, 63 
+R and $9, $3, $5
+I addi $1, $0, 55
+S halt
+S halt
+S halt
+S halt
+S halt

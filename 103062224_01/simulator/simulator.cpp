@@ -8,7 +8,7 @@
 #include "./regfile.h"
 #include "./memory.h"
 
-#define DEBUG_CYCLE 219
+#define DEBUG_CYCLE 22
 
 FILE *snapshot;
 FILE *error_dump;
@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
 	do{
 		print_snapshot();
 		cycle++;
-	}while (execute() != -1);
+	}while (execute() != -1 && cycle < 510000);
 	
 
 	destroy_all();

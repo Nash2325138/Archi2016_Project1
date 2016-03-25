@@ -88,6 +88,7 @@ int main(int argc, char const *argv[])
 		{
 			unsigned int rs;
 			if(fscanf(assembly, " $%u", &rs)==0) exit(99);
+			printf(" $%u  ", rs);
 
 			instruction <<= 6;
 			instruction = 0;

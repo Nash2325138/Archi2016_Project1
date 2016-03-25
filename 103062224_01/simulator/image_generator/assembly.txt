@@ -1,16 +1,54 @@
-200 16
-I addi $1, $0, 200
-I addi $2, $0, 13
-LUI lui $3, 511
-I lw $4, $0, 0
-I lw $5, $2, 3
-I andi $6, $5, 63
-I ori $7, $4, 63
-I nori $8, $5, 63 
-R and $9, $3, $5
-I addi $1, $0, 55
+200 53
+I addi $2, $2, 1
+I slti $1, $2, 4
+I bne $1, $0, -4
+I addi $1, $0, 1
+R_shift sll $2, $1, 31
+R sub $3, $2, $0
+R sub $3, $0, $2
+R sub $4, $2, $2
+R addu $5, $2, $2
+R add $5, $2, $2
+I lw $6, $0, 0
+I lw $7, $0, 16
+R and $8, $6, $7
+R nand $8, $6, $7
+R or $8, $6, $7
+R nor $8, $6, $7
+R xor $8, $6, $7
+R_shift sll $9, $8, 10
+I lh $9, $0, 8
+I lhu $9, $0, 12
+I lbu $10, $0, 1
+I lb $10, $0, 17
+R add $0, $0, $10
+R slt $0, $0, $0
+I nori $0, $10, 5555
+I ori $1, $10, 5555
+I addi $2, $0, 8
+I sw $9, $2, 12
+I lw $1, $2, 12
+I sh $6, $2, 16
+I sb $6, $0, 27
+I lw $11, $2, 16
+J jal 98
+I beq $28, $0, 1
+J j 0
+LUI lui $12, 255
+I lw $13, $0, 12
+R_shift sra $13, $13, 7
+R_shift srl $13, $13, 7
+I lw $19, $0, 4
+I lw $20, $19, 13
+I addi $20, $0, 1020
+I lh $21, $20, 3 
 S halt
 S halt
 S halt
 S halt
 S halt
+I addi $29, $29, -4
+I sw $31, $29, 0
+I lw $31, $29, 0
+I addi $29, $29, 4
+R_jr jr $31
