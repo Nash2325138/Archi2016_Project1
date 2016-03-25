@@ -96,7 +96,7 @@ void readInput_initialize(void)
 
 int execute(void)
 {
-	bool toReturn = false;
+	int toReturn = 0;
 	unsigned int inst = instructions->at(PC/4);
 	PC += 4;
 	//printf("inst==%x  ", inst);
@@ -107,48 +107,77 @@ int execute(void)
 	if(opcode == 0x00){
 		unsigned char funct = (unsigned char) (inst & 0x3f);
 		unsigned char rd = (unsigned char) ( (inst >> 11) & 0x1f );
-
+		int aluValue1, aluValue2;
+		if(funct != 0x08 && rd==0){								// 0x08 means jr
+			if(funct == 0x00 && rs==0 && shamt==0 ) {};		// sll $0, $0, 0 is a NOP
+			else fprintf(error_dump, "In cycle %d: Write $0 Error\n", cycle);
+			toReturn = 1;
+		}
 		switch(funct)
 		{
 			case 0x20:	// add
+				aluValue1 = regs->at(rs);
+				aluValue2 = regs->at(rt);
+				if(aluValue1<0 && aluValue2<0 && aluValue1+aluValue2 > 0){
+					fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
+					toReturn = 1;
+				}
+				if(aluValue1>0 && aluValue2>0 && aluValue1+aluValue2 < 0){
+					fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
+					toReturn = 1;
+				}
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = (signed int)regs->at(rs) + (signed int)regs->at(rt) ;
 				break;
+
 			case 0x21:	// addu
 				regs->at(rd) = (unsigned int)regs->at(rs) + (unsigned int)regs->at(rt);
 				break;
+
 			case 0x22:	// sub
 				regs->at(rd) = (signed int)regs->at(rs) - (signed int)regs->at(rt);
 				break;
+
 			case 0x24:	// and
 				regs->at(rd) = regs->at(rs) & regs->at(rt);
 				break;
+
 			case 0x25:	// or
 				regs->at(rd) = regs->at(rs) | regs->at(rt);
 				break;
+
 			case 0x26:	//xor
 				regs->at(rd) = regs->at(rs) ^ regs->at(rt);
 				break;
+
 			case 0x27:	//nor
 				regs->at(rd) = ~(regs->at(rs) | regs->at(rt));
 				break;
+
 			case 0x28:	//nand
 				regs->at(rd) = ~(regs->at(rs) & regs->at(rt));
 				break;
+
 			case 0x2a:	//slt
 				regs->at(rd) = ( (int)regs->at(rs) < (int)regs->at(rt) ) ? 1:0;
 				break;
+
 			case 0x00:	//sll
 				regs->at(rd) = regs->at(rt) << shamt;
 				break;
+
 			case 0x02:	//srl
 				regs->at(rd) = ((unsigned int)regs->at(rt)) >> shamt;
 				break;
+
 			case 0x03:	//sra
 				regs->at(rd) = ((int)regs->at(rt)) >> shamt;
 				break;
+
 			case 0x08:	//jr
 				PC = regs->at((unsigned int)rs);
 				break;
+
 			default: break;
 		}
 	} else {
@@ -164,6 +193,9 @@ int execute(void)
 			//printf("immediate==%d\n", immediate);
 			//--------------------------- I type start -----------------------------//
 			case 0x08: 	// addi
+				if(rt==0){
+
+				}
 				regs->at(rt) = regs->at(rs) + ((signed short)immediate);
 				break;
 
@@ -174,13 +206,13 @@ int execute(void)
 			case 0x23:	//lw
 				if ( location >1020 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
 				if( location % 4 != 0 ){
 					fprintf(error_dump, "In cycle %d: Misalignment Error\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 
 				regs->at(rt) = memory->at( location/4 );
 				break;
@@ -188,13 +220,13 @@ int execute(void)
 			case 0x21:	//lh
 				if( location > 1022) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
 				if( location % 2 != 0){
 					fprintf(error_dump, "In cycle %d: Misalignment Error\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 
 				if(location%4==0) halfLoaded = (signed short) ( (memory->at(location/4)) >> 16);
 				else if(location%2==0) halfLoaded = (signed short) ( (memory->at(location/4)) & 0x0000ffff );
@@ -204,13 +236,13 @@ int execute(void)
 			case 0x25:	//lhu 
 				if( location > 1022) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
 				if( location % 2 != 0){
 					fprintf(error_dump, "In cycle %d: Misalignment Error\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 
 				if(location%4==0) halfLoaded = (unsigned short) ( ((unsigned int)(memory->at(location/4))) >> 16);
 				else if(location%2==0) halfLoaded = (unsigned short) ( (memory->at(location/4)) & 0x0000ffff );
@@ -220,9 +252,9 @@ int execute(void)
 			case 0x20:	//lb 
 				if( location > 1023) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 
 				byteLoaded = (signed char) ( ((unsigned int)(memory->at(location/4))) >> (
 																													(location%4==0) ? 24 :
@@ -232,12 +264,13 @@ int execute(void)
 
 				regs->at(rt) = (signed char)byteLoaded;
 				break;
+
 			case 0x24:	//lbu 
 				if( location > 1023 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 
 				byteLoaded = (unsigned char) (((unsigned int)(memory->at(location/4))) >> (
 																													(location%4==0) ? 24 :
@@ -251,26 +284,26 @@ int execute(void)
 			case 0x2B:	//sw
 				if ( location >1020 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
 				if( location % 4 != 0 ){
 					fprintf(error_dump, "In cycle %d: Misalignment Error\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 				memory->at(location/4) = regs->at(rt);
 				break;
 
 			case 0x29:	//sh 
 				if ( location >1022 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
 				if( location % 2 != 0 ){
 					fprintf(error_dump, "In cycle %d: Misalignment Error\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 				
 				memory->at(location/4) &= (	(location%4==0) ? 0x0000ffff :
 																		(location%4==2) ? 0xffff0000 : 0xffff0000 );
@@ -283,9 +316,9 @@ int execute(void)
 			case 0x28:	//sb
 				if ( location >1023 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
-					toReturn = true;
+					toReturn = -1;
 				}
-				if(toReturn) return -1;
+				if(toReturn!=0) return toReturn;
 				
 				memory->at(location/4) &= (	(location%4==0) ? 0x00ffffff :
 																		(location%4==1) ? 0xff00ffff :
