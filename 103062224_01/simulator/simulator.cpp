@@ -22,6 +22,7 @@ void readInput_initialize(void);
 void print_snapshot(void);
 int execute(void);
 void destroy_all(void);
+void sumOverflow(int aluValue1, int aluValue2);
 
 int main(int argc, char const *argv[])
 {
@@ -104,77 +105,94 @@ int execute(void)
 	unsigned char rs =  (unsigned char) ( (inst >> 21) & 0x1f );
 	unsigned char rt = (unsigned char) ( (inst >> 16) & 0x1f );
 	unsigned char shamt = (unsigned char) ( (inst >> 6) & 0x1f );
+	unsigned char funct = (unsigned char) (inst & 0x3f);
+	unsigned char rd = (unsigned char) ( (inst >> 11) & 0x1f );
+	if(cycle==49) printf("cycle==%d, opcode==%02hhx, inst==%08x, funct==%02x\n", cycle, opcode, inst, funct);
+
 	if(opcode == 0x00){
-		unsigned char funct = (unsigned char) (inst & 0x3f);
-		unsigned char rd = (unsigned char) ( (inst >> 11) & 0x1f );
 		int aluValue1, aluValue2;
 		if(funct != 0x08 && rd==0){								// 0x08 means jr
-			if(funct == 0x00 && rs==0 && shamt==0 ) {};		// sll $0, $0, 0 is a NOP
+			if(funct == 0x00 && rt==0 && rd==0 && shamt==0 ) {}		// sll $0, $0, 0 is a NOP
 			else fprintf(error_dump, "In cycle %d: Write $0 Error\n", cycle);
 			toReturn = 1;
+
+		}
+		if(cycle==49){
+			printf("rd==%d, rs==%d, rt==%d, shamt==%d\n\n", rd, rs, rt, shamt);
 		}
 		switch(funct)
 		{
+
 			case 0x20:	// add
-				aluValue1 = regs->at(rs);
-				aluValue2 = regs->at(rt);
-				if(aluValue1<0 && aluValue2<0 && aluValue1+aluValue2 > 0){
-					fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
-					toReturn = 1;
-				}
-				if(aluValue1>0 && aluValue2>0 && aluValue1+aluValue2 < 0){
-					fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
-					toReturn = 1;
-				}
+				aluValue1 = (int)regs->at(rs);
+				aluValue2 = (int)regs->at(rt);
+				sumOverflow(aluValue1, aluValue2);
 				if(toReturn!=0) return toReturn;
-				regs->at(rd) = (signed int)regs->at(rs) + (signed int)regs->at(rt) ;
+				regs->at(rd) = ((signed int)regs->at(rs) + (signed int)regs->at(rt)) ;
 				break;
 
 			case 0x21:	// addu
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = (unsigned int)regs->at(rs) + (unsigned int)regs->at(rt);
 				break;
 
 			case 0x22:	// sub
+				aluValue1 = (int)regs->at(rs);
+				aluValue2 = (int)regs->at(rt);
+				aluValue2 = (~(aluValue2))+1;
+				sumOverflow(aluValue1, aluValue2);
+				if(toReturn!=0) return toReturn;
+				
 				regs->at(rd) = (signed int)regs->at(rs) - (signed int)regs->at(rt);
 				break;
 
 			case 0x24:	// and
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = regs->at(rs) & regs->at(rt);
 				break;
 
 			case 0x25:	// or
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = regs->at(rs) | regs->at(rt);
 				break;
 
 			case 0x26:	//xor
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = regs->at(rs) ^ regs->at(rt);
 				break;
 
 			case 0x27:	//nor
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = ~(regs->at(rs) | regs->at(rt));
 				break;
 
 			case 0x28:	//nand
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = ~(regs->at(rs) & regs->at(rt));
 				break;
 
 			case 0x2a:	//slt
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = ( (int)regs->at(rs) < (int)regs->at(rt) ) ? 1:0;
 				break;
 
 			case 0x00:	//sll
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = regs->at(rt) << shamt;
 				break;
 
 			case 0x02:	//srl
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = ((unsigned int)regs->at(rt)) >> shamt;
 				break;
 
 			case 0x03:	//sra
+				if(toReturn!=0) return toReturn;
 				regs->at(rd) = ((int)regs->at(rt)) >> shamt;
 				break;
 
 			case 0x08:	//jr
+				if(toReturn!=0) return toReturn;
 				PC = regs->at((unsigned int)rs);
 				break;
 
@@ -186,24 +204,34 @@ int execute(void)
 		unsigned int location = (regs->at(rs) + ((signed short)immediate) );;
 		signed short halfLoaded;
 		signed char byteLoaded;
-		unsigned int tempValue; 
+		unsigned int tempValue;
+		int aluValue1 = (int)regs->at(rs);
+		int aluValue2 = (signed short)immediate;
+		if(rt==0){
+			if(opcode!=0x2B && opcode!=0x29 && opcode!=0x28 && opcode!=0x04 && opcode!=0x05 && opcode!=0x07){
+				if(opcode!=0x02 && opcode!=0x03 && opcode!=0x3F){
+					fprintf(error_dump, "In cycle %d: Write $0 Error\n", cycle);
+					toReturn = 1;
+				}
+			}		
+		}
 		switch(opcode)
 		{
-
 			//printf("immediate==%d\n", immediate);
 			//--------------------------- I type start -----------------------------//
 			case 0x08: 	// addi
-				if(rt==0){
-
-				}
+				sumOverflow(aluValue1, aluValue2);
+				if(toReturn!=0) return toReturn;
 				regs->at(rt) = regs->at(rs) + ((signed short)immediate);
 				break;
 
 			case 0x09:	// addiu
+				if(toReturn!=0) return toReturn;
 				regs->at(rt) = regs->at(rs) + ((unsigned short)immediate);
 				break;
 
 			case 0x23:	//lw
+				sumOverflow(aluValue1, aluValue2);
 				if ( location >1020 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -218,6 +246,7 @@ int execute(void)
 				break;
 
 			case 0x21:	//lh
+				sumOverflow(aluValue1, aluValue2);
 				if( location > 1022) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -234,6 +263,7 @@ int execute(void)
 				break;
 
 			case 0x25:	//lhu 
+				sumOverflow(aluValue1, aluValue2);
 				if( location > 1022) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -250,6 +280,7 @@ int execute(void)
 				break;
 
 			case 0x20:	//lb 
+				sumOverflow(aluValue1, aluValue2);
 				if( location > 1023) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -265,7 +296,8 @@ int execute(void)
 				regs->at(rt) = (signed char)byteLoaded;
 				break;
 
-			case 0x24:	//lbu 
+			case 0x24:	//lbu
+				sumOverflow(aluValue1, aluValue2);
 				if( location > 1023 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -282,6 +314,7 @@ int execute(void)
 				break;
 
 			case 0x2B:	//sw
+				sumOverflow(aluValue1, aluValue2);
 				if ( location >1020 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -294,7 +327,8 @@ int execute(void)
 				memory->at(location/4) = regs->at(rt);
 				break;
 
-			case 0x29:	//sh 
+			case 0x29:	//sh
+				sumOverflow(aluValue1, aluValue2);
 				if ( location >1022 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -314,6 +348,7 @@ int execute(void)
 				break;
 
 			case 0x28:	//sb
+				sumOverflow(aluValue1, aluValue2);
 				if ( location >1023 ) {
 					fprintf(error_dump, "In cycle %d: Address Overflow\n", cycle);
 					toReturn = -1;
@@ -333,47 +368,57 @@ int execute(void)
 				break;
 
 			case 0x0F:	//lui 
-				regs->at(rt) = immediate << 16;
+				if(toReturn!=0) return toReturn;
+				regs->at(rt) = ((unsigned int)immediate) << 16;
 				break;
 
 			case 0x0C:	//andi 
+				if(toReturn!=0) return toReturn;
 				regs->at(rt) = regs->at(rs) & ( (unsigned short)immediate );
 				break;
 
 			case 0x0D:	//ori 
+				if(toReturn!=0) return toReturn;
 				regs->at(rt) = regs->at(rs) | ( (unsigned short)immediate );
 				break;
 
 			case 0x0E:	//nori 
+				if(toReturn!=0) return toReturn;
 				regs->at(rt) = ~( regs->at(rs) | ( (unsigned short)immediate ) );
 				break;
 			
 			case 0x0A:	//slti
+				if(toReturn!=0) return toReturn;
 				if( ((signed int)regs->at(rs)) < (signed short)immediate ) regs->at(rt) = 1;
 				else regs->at(rt) = 0;
 				break;
 
 			case 0x04:	//beg 
-				if( regs->at(rs)==regs->at(rt) ) PC += (signed short)immediate;
+				if(toReturn!=0) return toReturn;
+				if( regs->at(rs)==regs->at(rt) ) PC += (4*(signed short)immediate);
 				break;
 
 			case 0x05:	//bne 
-				if( regs->at(rs)!=regs->at(rt) ) PC += (signed short)immediate;
+				if(toReturn!=0) return toReturn;
+				if( regs->at(rs)!=regs->at(rt) ) PC += (4*(signed short)immediate);
 				break;
 			
 			case 0x07:	//bgtz 
-				if (regs->at(rs) > 0) PC += (signed short)immediate;
+				if(toReturn!=0) return toReturn;
+				if (regs->at(rs) > 0) PC += (4*(signed short)immediate);
 				break;
 			//--------------------------- I type end -----------------------------//
 
 
 			//--------------------------- J type start -----------------------------//
 			case 0x02:	//j
+				if(toReturn!=0) return toReturn;
 				PC &= 0xf0000000;
 				PC |= ( ((unsigned int)address) << 2 );
 				break;
 
 			case 0x03:	//jal
+				if(toReturn!=0) return toReturn;
 				regs->at(31) = PC;
 				PC &= 0xf0000000;
 				PC |= ( ((unsigned int)address) << 2 );
@@ -421,6 +466,18 @@ void destroy_all(void)
 
 
 
+void sumOverflow(int aluValue1, int aluValue2)
+{
+	if(aluValue1<=0 && aluValue2<=0 && aluValue1+aluValue2 > 0){
+		fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
+	}
+	if(aluValue1>=0 && aluValue2>=0 && aluValue1+aluValue2 < 0){
+		fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
+	}
+	if(aluValue1<0 && aluValue2<0 && aluValue1+aluValue2==0){
+		fprintf(error_dump, "In cycle %d: Number Overflow\n", cycle);
+	}
+}
 /*
 std::vector<unsigned int>* readImage(FILE *image)
 {
