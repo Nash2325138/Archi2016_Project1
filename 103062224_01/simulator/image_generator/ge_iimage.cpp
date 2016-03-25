@@ -132,7 +132,7 @@ int main(int argc, char const *argv[])
 			instruction |= rt;
 
 			instruction <<= 16;
-			instruction |= immediate;
+			instruction |= (unsigned short)immediate;
 		}
 		else if(strcmp(type, "LUI")==0)
 		{
@@ -150,7 +150,7 @@ int main(int argc, char const *argv[])
 			instruction |= rt;
 
 			instruction <<= 16;
-			instruction |= immediate;
+			instruction |= (unsigned short)immediate;
 		}
 		else if(strcmp(type, "BGTZ")==0)
 		{
@@ -168,7 +168,7 @@ int main(int argc, char const *argv[])
 			instruction <<=5;	// no rt
 
 			instruction <<= 16;
-			instruction |= immediate;
+			instruction |= (unsigned short)immediate;
 		}
 		else if(strcmp(type, "J")==0)
 		{

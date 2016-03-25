@@ -8,6 +8,8 @@
 #include "./regfile.h"
 #include "./memory.h"
 
+#define DEBUG_CYCLE 219
+
 FILE *snapshot;
 FILE *error_dump;
 
@@ -98,6 +100,7 @@ void readInput_initialize(void)
 int execute(void)
 {
 	int toReturn = 0;
+	if(cycle==DEBUG_CYCLE) printf("PC==%d, ", PC);
 	unsigned int inst = instructions->at(PC/4);
 	PC += 4;
 	//printf("inst==%x  ", inst);
@@ -107,7 +110,7 @@ int execute(void)
 	unsigned char shamt = (unsigned char) ( (inst >> 6) & 0x1f );
 	unsigned char funct = (unsigned char) (inst & 0x3f);
 	unsigned char rd = (unsigned char) ( (inst >> 11) & 0x1f );
-	if(cycle==49) printf("cycle==%d, opcode==%02hhx, inst==%08x, funct==%02x\n", cycle, opcode, inst, funct);
+	if(cycle==DEBUG_CYCLE) printf("cycle==%d, opcode==%02hhx, inst==%08x, funct==%02x\n", cycle, opcode, inst, funct);
 
 	if(opcode == 0x00){
 		int aluValue1, aluValue2;
@@ -117,7 +120,7 @@ int execute(void)
 			toReturn = 1;
 
 		}
-		if(cycle==49){
+		if(cycle==DEBUG_CYCLE){
 			printf("rd==%d, rs==%d, rt==%d, shamt==%d\n\n", rd, rs, rt, shamt);
 		}
 		switch(funct)
@@ -207,6 +210,9 @@ int execute(void)
 		unsigned int tempValue;
 		int aluValue1 = (int)regs->at(rs);
 		int aluValue2 = (signed short)immediate;
+		if(cycle==DEBUG_CYCLE){
+			printf("rs==%d, rt==%d, immediate==%d\n\n", rs, rt, immediate);
+		}
 		if(rt==0){
 			if(opcode!=0x2B && opcode!=0x29 && opcode!=0x28 && opcode!=0x04 && opcode!=0x05 && opcode!=0x07){
 				if(opcode!=0x02 && opcode!=0x03 && opcode!=0x3F){
@@ -393,7 +399,7 @@ int execute(void)
 				else regs->at(rt) = 0;
 				break;
 
-			case 0x04:	//beg 
+			case 0x04:	//beq
 				if(toReturn!=0) return toReturn;
 				if( regs->at(rs)==regs->at(rt) ) PC += (4*(signed short)immediate);
 				break;
