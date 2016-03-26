@@ -1,7 +1,7 @@
 CC = g++ -std=c++11 -Wall
 ALL_OBJ = simulator.o instruction.o regfile.o memory.o
 simulator: ${ALL_OBJ}
-	${CC} -o simulator ${ALL_OBJ}
+	${CC} -o single_cycle ${ALL_OBJ}
 allObj: ./*cpp
 	${CC} -c ./*.cpp
 simulator.o: simulator.cpp
@@ -13,7 +13,7 @@ regfile.o: regfile.cpp
 memory.o: memory.cpp
 	${CC} -c memory.cpp
 clean:
-	rm -f simulator ${ALL_OBJ}
+	rm -f single_cycle ${ALL_OBJ}
 
 snapshot_golden_compare: snapshot.rpt ./TA_golden/snapshot.rpt
 	diff --side-by-side --suppress-common-lines snapshot.rpt ./TA_golden/snapshot.rpt
@@ -24,7 +24,7 @@ redo_simulate:
 	rm -f iimage.bin dimage.bin
 	cp ./image_generator/iimage.bin ./iimage.bin
 	cp ./image_generator/dimage.bin ./dimage.bin
-	./simulator
+	./single_cycle
 	rm -f ./TA_golden/snapshot.rpt ./TA_golden/error_dump.rpt
 	rm -f ./TA_golden/iimage.bin ./TA_golden/dimage.bin
 	cp ./image_generator/iimage.bin ./TA_golden/iimage.bin
