@@ -8,7 +8,7 @@
 #include "./regfile.h"
 #include "./memory.h"
 
-#define DEBUG_CYCLE 22
+#define DEBUG_CYCLE 999999
 
 FILE *snapshot;
 FILE *error_dump;
@@ -411,7 +411,7 @@ int execute(void)
 			
 			case 0x07:	//bgtz 
 				if(toReturn!=0) return toReturn;
-				if (regs->at(rs) > 0) PC += (4*(signed short)immediate);
+				if ( (signed int)regs->at(rs) > 0) PC += (4*(signed short)immediate);
 				break;
 			//--------------------------- I type end -----------------------------//
 
