@@ -233,7 +233,7 @@ int execute(void)
 
 			case 0x09:	// addiu
 				if(toReturn!=0) return toReturn;
-				regs->at(rt) = regs->at(rs) + ((unsigned short)immediate);
+				regs->at(rt) = regs->at(rs) + ((signed short)immediate);
 				break;
 
 			case 0x23:	//lw
@@ -411,7 +411,7 @@ int execute(void)
 			
 			case 0x07:	//bgtz 
 				if(toReturn!=0) return toReturn;
-				if ( (signed int)regs->at(rs) > 0) PC += (4*(signed short)immediate);
+				if ((signed int)regs->at(rs) > 0) PC += (4*(signed short)immediate);
 				break;
 			//--------------------------- I type end -----------------------------//
 
